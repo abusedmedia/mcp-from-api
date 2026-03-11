@@ -1,0 +1,209 @@
+{
+  "server": {
+    "name": "Example MCP Server",
+    "version": "0.0.0",
+    "description": "Example config. Copy to tools.config.json and edit for your environment."
+  },
+  "baseUrlEnvKey": "API_BASE_URL",
+  "tools": [
+    {
+      "name": "get_artist_by_id",
+      "description": "Fetch an artist by ID (example)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The ID of the artist to fetch"
+          }
+        },
+        "required": ["id"],
+        "additionalProperties": false
+      },
+      "http": {
+        "method": "POST",
+        "path": "/get-artist-by-id",
+        "body": {
+          "mode": "json",
+          "mapping": "full"
+        },
+        "headers": {
+          "Authorization": "Bearer YOUR_API_TOKEN"
+        }
+      },
+      "response": {
+        "mode": "json",
+        "contentPath": null,
+        "wrap": {
+          "type": "text",
+          "template": "Artist response:\\n\\n{{body}}"
+        }
+      }
+    },
+    {
+      "name": "get_project_by_id",
+      "description": "Fetch a project by ID (example)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The ID of the project to fetch"
+          }
+        },
+        "required": ["id"],
+        "additionalProperties": false
+      },
+      "http": {
+        "method": "POST",
+        "path": "/get-project-by-id",
+        "body": {
+          "mode": "json",
+          "mapping": "full"
+        },
+        "headers": {
+          "Authorization": "Bearer YOUR_API_TOKEN"
+        }
+      },
+      "response": {
+        "mode": "json",
+        "contentPath": null,
+        "wrap": {
+          "type": "text",
+          "template": "Project response:\\n\\n{{body}}"
+        }
+      }
+    },
+    {
+      "name": "find_projects_by_name",
+      "description": "Find projects by name (example)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query to find projects by name"
+          }
+        },
+        "required": ["query"],
+        "additionalProperties": false
+      },
+      "http": {
+        "method": "POST",
+        "path": "/find-projects-by-name",
+        "body": {
+          "mode": "json",
+          "mapping": "full"
+        },
+        "headers": {
+          "Authorization": "Bearer YOUR_API_TOKEN"
+        }
+      },
+      "response": {
+        "mode": "json",
+        "contentPath": null,
+        "wrap": {
+          "type": "text",
+          "template": "Projects response:\\n\\n{{body}}"
+        }
+      }
+    },
+    {
+      "name": "find_artists_by_name",
+      "description": "Find artists by name (example)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query to find artists by name"
+          }
+        },
+        "required": ["query"],
+        "additionalProperties": false
+      },
+      "http": {
+        "method": "POST",
+        "path": "/find-artists-by-name",
+        "body": {
+          "mode": "json",
+          "mapping": "full"
+        },
+        "headers": {
+          "Authorization": "Bearer YOUR_API_TOKEN"
+        }
+      },
+      "response": {
+        "mode": "json",
+        "contentPath": null,
+        "wrap": {
+          "type": "text",
+          "template": "Artists response:\\n\\n{{body}}"
+        }
+      }
+    },
+    {
+      "name": "search_archived_projects",
+      "description": "Search archived projects (example)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query for archived projects"
+          }
+        },
+        "required": ["query"],
+        "additionalProperties": false
+      },
+      "http": {
+        "method": "POST",
+        "path": "/search-archived-projects",
+        "body": {
+          "mode": "json",
+          "mapping": "full"
+        },
+        "headers": {
+          "Authorization": "Bearer YOUR_API_TOKEN"
+        }
+      },
+      "response": {
+        "mode": "json",
+        "contentPath": null,
+        "wrap": {
+          "type": "text",
+          "template": "Archived projects response:\\n\\n{{body}}"
+        }
+      }
+    },
+    {
+      "name": "get_all_artists",
+      "description": "Get all artists (example)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "http": {
+        "method": "POST",
+        "path": "/get-all-artists",
+        "body": {
+          "mode": "json",
+          "mapping": "full"
+        },
+        "headers": {
+          "Authorization": "Bearer YOUR_API_TOKEN"
+        }
+      },
+      "response": {
+        "mode": "json",
+        "contentPath": null,
+        "wrap": {
+          "type": "text",
+          "template": "Artists response:\\n\\n{{body}}"
+        }
+      }
+    }
+  ]
+}

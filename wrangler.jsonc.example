@@ -1,0 +1,33 @@
+/**
+ * Example Wrangler config for public repos.
+ * Copy to `wrangler.jsonc` and customize for your environment.
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "mcp-from-api",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-03-10",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"migrations": [],
+	"observability": {
+		"enabled": true
+	},
+	"vars": {
+		"API_BASE_URL": "https://api.example.com"
+	},
+	"env": {
+		"development": {
+			"vars": {
+				"API_BASE_URL": "https://api-dev.example.com"
+			}
+		},
+		"production": {
+			"vars": {
+				"API_BASE_URL": "https://api.example.com"
+			}
+		}
+	}
+}
+
