@@ -12,6 +12,10 @@ Instead of hardcoding tools, you define them in `src/config/tools.config.json`. 
 
 The worker runtime is still Cloudflare Workers using Wrangler.
 
+
+
+![](cover.png)
+
 ## Environment configuration
 
 This repo is set up to **keep local configuration out of git**:
