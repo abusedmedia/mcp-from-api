@@ -2,6 +2,8 @@
 
 A **configurable Model Context Protocol (MCP) server** that exposes arbitrary HTTP APIs as MCP tools, driven entirely by a JSON config.
 
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/OWNER/REPO)
+
 Instead of hardcoding tools, you define them in `src/config/tools.config.json`. Each entry describes:
 
 - **Tool metadata**: `name`, `description`, `inputSchema`
