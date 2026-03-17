@@ -15,21 +15,57 @@ function getBearerToken(request: Request): string | undefined {
 	return auth.replace(/^Bearer\s+/i, "").trim() || undefined;
 }
 
-function buildUrlWithQuery(baseUrl: string, path: string, queryConfig: Record<string, string> | undefined, args: Record<string, unknown>): string {
+function getTokenFromRequest(request: Request, url: URL): string | undefined {
+	// Support optional token segment in both /sse and /mcp paths,
+	// and fall back to Authorization: Bearer header.
+	const sseMatch = url.pathname.match(/^\/sse(?:\/(.*))?\/?$/);
+	const mcpMatch = url.pathname.match(/^\/mcp(?:\/(.*))?\/?$/);
+	const rawPathToken = sseMatch ? sseMatch[1] : mcpMatch?.[1];
+	const pathToken =
+		typeof rawPathToken === "string" && rawPathToken.trim()
+			? rawPathToken.trim()
+			: undefined;
+	return pathToken ?? getBearerToken(request);
+}
+
+function getTokenValidity(token: string | undefined): boolean {
+	const configured = toolsConfig.authToken;
+	if (!configured) {
+		// No auth token configured -> no auth behavior.
+		return false;
+	}
+	return token === configured;
+}
+
+function buildUrlWithQuery(
+	baseUrl: string,
+	path: string,
+	queryConfig: Record<string, string> | undefined,
+	args: Record<string, unknown>,
+	extraQuery?: Record<string, string>,
+): string {
 	// Append path to base URL so base path is preserved (new URL(path, base) would replace base path)
 	const base = baseUrl.replace(/\/$/, "");
 	const pathPart = path.startsWith("/") ? path : `/${path}`;
 	const url = new URL(`${base}${pathPart}`);
+	const params = new URLSearchParams(url.search);
+
 	if (queryConfig) {
-		const params = new URLSearchParams(url.search);
 		for (const [queryKey, argKey] of Object.entries(queryConfig)) {
 			const value = args[argKey];
 			if (value !== undefined && value !== null) {
 				params.set(queryKey, String(value));
 			}
 		}
-		url.search = params.toString();
 	}
+
+	if (extraQuery) {
+		for (const [key, value] of Object.entries(extraQuery)) {
+			params.set(key, value);
+		}
+	}
+
+	url.search = params.toString();
 	return url.toString();
 }
 
@@ -54,7 +90,12 @@ function buildJsonBody(bodyConfig: ToolConfig["http"]["body"], args: Record<stri
 	return undefined;
 }
 
-async function callConfiguredTool(tool: ToolConfig, args: Record<string, unknown>, env: Env, token?: string): Promise<string> {
+async function callConfiguredTool(
+	tool: ToolConfig,
+	args: Record<string, unknown>,
+	env: Env,
+	token?: string,
+): Promise<string> {
 	const baseUrlKey = toolsConfig.baseUrlEnvKey;
 	const baseUrl = (env as unknown as Record<string, string | undefined>)[baseUrlKey];
 
@@ -63,17 +104,17 @@ async function callConfiguredTool(tool: ToolConfig, args: Record<string, unknown
 	}
 
 	const { http, response } = tool;
-	const url = buildUrlWithQuery(baseUrl, http.path, http.query, args);
+	const extraQuery =
+		token && getTokenValidity(token) && toolsConfig.authToken
+			? { token: toolsConfig.authToken }
+			: undefined;
+	const url = buildUrlWithQuery(baseUrl, http.path, http.query, args, extraQuery);
 
 	const headers = new Headers();
 	if (http.headers) {
 		for (const [key, value] of Object.entries(http.headers)) {
 			headers.set(key, value);
 		}
-	}
-
-	if (token && !headers.has("Authorization")) {
-		headers.set("Authorization", `Bearer ${token}`);
 	}
 
 	const body = buildJsonBody(http.body, args);
@@ -141,7 +182,7 @@ async function callConfiguredTool(tool: ToolConfig, args: Record<string, unknown
 }
 
 class SimpleMCPServer {
-	async handleRequest(request: Request, env: Env, token?: string): Promise<Response> {
+	async handleRequest(request: Request, env: Env, token?: string, tokenIsValid?: boolean): Promise<Response> {
 		try {
 			const body = await request.json() as any;
 			
@@ -191,6 +232,7 @@ class SimpleMCPServer {
 			// Handle list_tools request
 			if (body.method === "tools/list") {
 				console.log('Handling tools/list request');
+
 				const toolsResponse = {
 					jsonrpc: "2.0",
 					result: {
@@ -403,15 +445,11 @@ export default {
 		const mcpMatch = url.pathname.match(/^\/mcp(?:\/(.*))?\/?$/);
 		
 		if (sseMatch || mcpMatch) {
-			const rawPathToken = sseMatch ? sseMatch[1] : mcpMatch?.[1];
-			const pathToken =
-				typeof rawPathToken === "string" && rawPathToken.trim()
-					? rawPathToken.trim()
-					: undefined;
-			const token = pathToken ?? getBearerToken(request);
+			const token = getTokenFromRequest(request, url);
+			const tokenIsValid = getTokenValidity(token);
 			
 			if (request.method === "POST") {
-				return mcpServer.handleRequest(request, env, token);
+				return mcpServer.handleRequest(request, env, token, tokenIsValid);
 			}
 			
 			// For GET requests, return a simple response

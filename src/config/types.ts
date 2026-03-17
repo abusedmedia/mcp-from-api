@@ -55,5 +55,11 @@ export interface ServerMetadataConfig {
 export interface McpFromApiConfig {
 	server: ServerMetadataConfig;
 	baseUrlEnvKey: string;
+	/**
+	 * Optional shared token. When a valid token is provided in
+	 * the MCP URL or Authorization header, all upstream HTTP
+	 * requests will include it as a `token` query parameter.
+	 */
+	authToken?: string;
 	tools: ToolConfig[];
 }
