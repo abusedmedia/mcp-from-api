@@ -32,6 +32,19 @@ In the default config:
 - `baseUrlEnvKey` is `API_BASE_URL`
 - `wrangler.jsonc` typically provides different values per environment (examples shown in `wrangler.jsonc.example`).
 
+### Optional shared token (`authTokenEnvKey`)
+
+You can protect the MCP endpoints and pass a secret through to your upstream API:
+
+1. In `tools.config.json`, set **`authTokenEnvKey`** to the name of a Worker binding (same pattern as `baseUrlEnvKey`). The example uses `MCP_AUTH_TOKEN`.
+2. In `wrangler.jsonc`, define that variable (or use a [secret](https://developers.cloudflare.com/workers/configuration/secrets/) for production). If the value is missing or blank, token auth is disabled: clients do not need a token, and upstream calls do not get an extra `token` query parameter.
+3. When the env value is non-empty, MCP clients must send **the same string** when connecting, either:
+   - as a path segment: `/mcp/<token>` or `/sse/<token>`, or
+   - as `Authorization: Bearer <token>`.
+4. If the client token matches the configured secret, every upstream tool request appends **`token=<that secret>`** as a query parameter (in addition to any `query` mapping from the tool config). Your API can read that parameter to authorize the call.
+
+Static per-tool headers (for example `Authorization: Bearer ...` for the upstream API) are set only in each tool’s `http.headers` block; they are not derived from the MCP client token.
+
 ### Quick start (local)
 
 Copy the example configs:
@@ -59,6 +72,7 @@ Example:
     "description": "Configurable MCP server that exposes HTTP APIs as tools."
   },
   "baseUrlEnvKey": "API_BASE_URL",
+  "authTokenEnvKey": "MCP_AUTH_TOKEN",
   "tools": [
     {
       "name": "example_get_users",
@@ -104,7 +118,7 @@ In each tool’s `http` block:
 - **`path`**: joined with the base URL from the environment
 - **`query`**: map of query parameter name → argument key  
   (e.g. `"page": "page"` means `args.page` becomes `?page=...`)
-- **`headers`**: headers to send; if the MCP server is called with a token in the URL or `Authorization` header, it will add a `Bearer` header when not already set.
+- **`headers`**: static headers to send on every call for that tool (from the config only).
 - **`body`** (optional, for methods like `POST`/`PUT`/`PATCH`):
   - `mode: "json"`
   - `mapping`:

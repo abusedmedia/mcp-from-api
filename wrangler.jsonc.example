@@ -15,17 +15,20 @@
 		"enabled": true
 	},
 	"vars": {
-		"API_BASE_URL": "https://api.example.com"
+		"API_BASE_URL": "https://api.example.com",
+		"MCP_AUTH_TOKEN": ""
 	},
 	"env": {
 		"development": {
 			"vars": {
-				"API_BASE_URL": "https://api-dev.example.com"
+				"API_BASE_URL": "https://api-dev.example.com",
+				"MCP_AUTH_TOKEN": ""
 			}
 		},
 		"production": {
 			"vars": {
-				"API_BASE_URL": "https://api.example.com"
+				"API_BASE_URL": "https://api.example.com",
+				"MCP_AUTH_TOKEN": ""
 			}
 		}
 	}

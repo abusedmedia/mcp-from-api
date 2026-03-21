@@ -28,10 +28,19 @@ function getTokenFromRequest(request: Request, url: URL): string | undefined {
 	return pathToken ?? getBearerToken(request);
 }
 
-function getTokenValidity(token: string | undefined): boolean {
-	const configured = toolsConfig.authToken;
+function getConfiguredAuthToken(env: Env): string | undefined {
+	const key = toolsConfig.authTokenEnvKey;
+	if (!key) return undefined;
+	const v = (env as unknown as Record<string, string | undefined>)[key];
+	if (typeof v !== "string" || !v.trim()) return undefined;
+	return v.trim();
+}
+
+function getTokenValidity(
+	token: string | undefined,
+	configured: string | undefined,
+): boolean {
 	if (!configured) {
-		// No auth token configured -> no auth behavior.
 		return false;
 	}
 	return token === configured;
@@ -104,9 +113,10 @@ async function callConfiguredTool(
 	}
 
 	const { http, response } = tool;
+	const configuredAuth = getConfiguredAuthToken(env);
 	const extraQuery =
-		token && getTokenValidity(token) && toolsConfig.authToken
-			? { token: toolsConfig.authToken }
+		token && getTokenValidity(token, configuredAuth) && configuredAuth
+			? { token: configuredAuth }
 			: undefined;
 	const url = buildUrlWithQuery(baseUrl, http.path, http.query, args, extraQuery);
 
@@ -446,7 +456,8 @@ export default {
 		
 		if (sseMatch || mcpMatch) {
 			const token = getTokenFromRequest(request, url);
-			const tokenIsValid = getTokenValidity(token);
+			const configuredAuth = getConfiguredAuthToken(env);
+			const tokenIsValid = getTokenValidity(token, configuredAuth);
 			
 			if (request.method === "POST") {
 				return mcpServer.handleRequest(request, env, token, tokenIsValid);

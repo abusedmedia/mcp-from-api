@@ -56,10 +56,11 @@ export interface McpFromApiConfig {
 	server: ServerMetadataConfig;
 	baseUrlEnvKey: string;
 	/**
-	 * Optional shared token. When a valid token is provided in
-	 * the MCP URL or Authorization header, all upstream HTTP
-	 * requests will include it as a `token` query parameter.
+	 * Optional env binding name for the shared MCP auth secret (same pattern as
+	 * `baseUrlEnvKey`). When set, the Worker reads that string from `env` and,
+	 * if the client sends a matching token in the URL path or Authorization
+	 * header, upstream HTTP requests include it as a `token` query parameter.
 	 */
-	authToken?: string;
+	authTokenEnvKey?: string;
 	tools: ToolConfig[];
 }

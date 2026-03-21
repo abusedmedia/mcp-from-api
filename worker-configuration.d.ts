@@ -2,4 +2,6 @@
 
 interface Env {
 	API_BASE_URL: string;
+	/** Set in wrangler when `authTokenEnvKey` is `MCP_AUTH_TOKEN`. */
+	MCP_AUTH_TOKEN?: string;
 }

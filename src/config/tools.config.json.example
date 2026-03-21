@@ -5,6 +5,7 @@
     "description": "Example config. Copy to tools.config.json and edit for your environment."
   },
   "baseUrlEnvKey": "API_BASE_URL",
+  "authTokenEnvKey": "MCP_AUTH_TOKEN",
   "tools": [
     {
       "name": "get_artist_by_id",
