@@ -1,0 +1,23 @@
+{
+	"name": "mcp-from-api",
+	"version": "0.0.1",
+	"private": true,
+	"description": "MCP server from API",
+	"scripts": {
+		"deploy": "wrangler deploy --env production",
+		"deploy:dev": "wrangler deploy --env development",
+		"dev": "wrangler dev --env development",
+		"dev:prod": "wrangler dev --env production",
+		"format": "biome format --write",
+		"lint:fix": "biome lint --fix",
+		"start": "wrangler dev --env development",
+		"cf-typegen": "wrangler types",
+		"type-check": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.2.4",
+		"@types/node": "^24.3.3",
+		"typescript": "5.9.2",
+		"wrangler": "^4.36.0"
+	}
+}
